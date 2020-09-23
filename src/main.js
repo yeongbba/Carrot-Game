@@ -1,5 +1,7 @@
 "use strict";
 
+import PopUp from "./popup.js";
+
 const CARROT_SIZE = 80;
 const CARROT_COUNT = 20;
 const BUG_COUNT = 20;
@@ -11,10 +13,6 @@ const gameBtn = document.querySelector(".game__button");
 const gameTimer = document.querySelector(".game__timer");
 const gameScore = document.querySelector(".game__score");
 
-const popUp = document.querySelector(".pop-up");
-const popUpText = document.querySelector(".pop-up__message");
-const popUpRefresh = document.querySelector(".pop-up__refresh");
-
 const carrotSound = new Audio("./sound/carrot_pull.mp3");
 const alertSound = new Audio("./sound/alert.wav");
 const bgSound = new Audio("./sound/bg.mp3");
@@ -25,6 +23,11 @@ let started = false;
 let score = 0;
 let timer = undefined;
 
+const gameFinishBanner = new PopUp();
+gameFinishBanner.setClickListner(() => {
+  startGame();
+});
+
 field.addEventListener("click", onFieldClick);
 gameBtn.addEventListener("click", () => {
   if (started) {
@@ -32,11 +35,6 @@ gameBtn.addEventListener("click", () => {
   } else {
     startGame();
   }
-});
-
-popUpRefresh.addEventListener("click", () => {
-  startGame();
-  hidePopUp();
 });
 
 function startGame() {
@@ -52,7 +50,7 @@ function stopGame() {
   started = false;
   stopGameTimer();
   hideGameButton();
-  showPopUpWithText("지의진, 그만 할거야❓");
+  gameFinishBanner.showWithText("지의진, 그만 할거야❓");
   playSound(alertSound);
   stopSound(bgSound);
 }
@@ -67,7 +65,9 @@ function finishGame(win) {
   }
   stopGameTimer();
   stopSound(bgSound);
-  showPopUpWithText(win ? "지의진이 이겼다...😲" : "지의진이 졌다!😄");
+  gameFinishBanner.showWithText(
+    win ? "지의진이 이겼다...😲" : "지의진이 졌다!😄"
+  );
 }
 
 function updateTimerText(time) {
@@ -76,14 +76,6 @@ function updateTimerText(time) {
   gameTimer.innerText = `${minutes}:${seconds}`;
 }
 
-function showPopUpWithText(text) {
-  popUpText.innerText = text;
-  popUp.classList.remove("pop-up--hide");
-}
-
-function hidePopUp() {
-  popUp.classList.add("pop-up--hide");
-}
 function showStopButton() {
   const icon = gameBtn.querySelector(".fas");
   icon.classList.add("fa-stop");
